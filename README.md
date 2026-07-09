@@ -1,19 +1,19 @@
-# ?? Caleb Navigator — Abisola
+ï»¿# Caleb Navigator
 
 A campus navigation web application built with a **Django REST Framework** backend and a **Vue 3** frontend. It uses Dijkstra's algorithm for shortest-path routing and displays interactive maps via Leaflet.js.
 
 ---
 
-## ?? Project Structure
+## Project Structure
 
 ```
-caleb-navigator ABISOLA/
+caleb-navigator/
 +-- backend/          # Django REST API
-¦   +-- config/       # Django settings, URLs, WSGI/ASGI
-¦   +-- navigation/   # Navigation app (models, views, Dijkstra logic)
-¦   +-- users/        # Custom user model & JWT auth
-¦   +-- manage.py
-¦   +-- .env          # Environment variables (not committed)
+|   +-- config/       # Django settings, URLs, WSGI/ASGI
+|   +-- navigation/   # Navigation app (models, views, Dijkstra logic)
+|   +-- users/        # Custom user model & JWT auth
+|   +-- manage.py
+|   +-- .env          # Environment variables (not committed)
 +-- frontend/         # Vue 3 + Vite SPA
     +-- src/          # Vue components, router, stores
     +-- public/
@@ -22,18 +22,18 @@ caleb-navigator ABISOLA/
 
 ---
 
-## ?? Prerequisites
+## Prerequisites
 
-| Tool | Minimum Version |
-|------|----------------|
-| Python | 3.10+ |
-| pip | latest |
-| Node.js | 20.19.0 or = 22.12.0 |
-| npm | 9+ |
+| Tool    | Minimum Version          |
+|---------|--------------------------|
+| Python  | 3.10+                    |
+| pip     | latest                   |
+| Node.js | 20.19.0 or >= 22.12.0    |
+| npm     | 9+                       |
 
 ---
 
-## ?? Backend Setup (Django)
+## Backend Setup (Django)
 
 ### 1. Navigate to the backend folder
 
@@ -59,11 +59,6 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-> Or if a `requirements.txt` is present:
-> ```bash
-> pip install -r requirements.txt
-> ```
-
 ### 4. Create the `.env` file
 
 Create a file at `backend/.env` with the following content:
@@ -74,7 +69,7 @@ DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 ```
 
-> ?? **Never commit your `.env` file.** It is already listed in `.gitignore`.
+> **Note:** Never commit your `.env` file. It is already listed in `.gitignore`.
 
 To generate a secure `SECRET_KEY`, run:
 
@@ -104,7 +99,7 @@ The API will be available at: **`http://127.0.0.1:8000/`**
 
 ---
 
-## ? Frontend Setup (Vue 3 + Vite)
+## Frontend Setup (Vue 3 + Vite)
 
 ### 1. Navigate to the frontend folder
 
@@ -128,7 +123,7 @@ The app will be available at: **`http://localhost:5173/`**
 
 ---
 
-## ?? API & CORS
+## API & CORS
 
 The Django backend is pre-configured to allow requests from the Vue dev server:
 
@@ -139,31 +134,31 @@ If you change the frontend port, update `CORS_ALLOWED_ORIGINS` in `backend/confi
 
 ---
 
-## ?? Authentication
+## Authentication
 
 This project uses **JWT (JSON Web Tokens)** via `djangorestframework-simplejwt`.
 
-| Token | Lifetime |
-|-------|----------|
-| Access Token | 30 minutes |
-| Refresh Token | 1 day |
+| Token         | Lifetime    |
+|---------------|-------------|
+| Access Token  | 30 minutes  |
+| Refresh Token | 1 day       |
 
 Tokens are passed as `Bearer <token>` in the `Authorization` header.
 
 ---
 
-## ??? Database
+## Database
 
 SQLite is used for development and stored at `backend/db.sqlite3`.
 No additional database setup is required for local development.
 
 ---
 
-## ?? Running Both Servers
+## Running Both Servers
 
 Open **two separate terminals**:
 
-**Terminal 1 — Backend:**
+**Terminal 1 - Backend:**
 
 ```bash
 cd backend
@@ -171,7 +166,7 @@ venv\Scripts\activate      # Windows
 python manage.py runserver
 ```
 
-**Terminal 2 — Frontend:**
+**Terminal 2 - Frontend:**
 
 ```bash
 cd frontend
@@ -182,50 +177,50 @@ Then open your browser at **`http://localhost:5173`**.
 
 ---
 
-## ??? Available Scripts
+## Available Scripts
 
 ### Backend
 
-| Command | Description |
-|---------|-------------|
-| `python manage.py runserver` | Start dev server |
-| `python manage.py migrate` | Apply database migrations |
-| `python manage.py createsuperuser` | Create admin user |
-| `python manage.py makemigrations` | Generate migration files |
+| Command                            | Description                    |
+|------------------------------------|--------------------------------|
+| `python manage.py runserver`       | Start dev server               |
+| `python manage.py migrate`         | Apply database migrations      |
+| `python manage.py createsuperuser` | Create admin user              |
+| `python manage.py makemigrations`  | Generate migration files       |
 
 ### Frontend
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start Vite dev server |
-| `npm run build` | Build for production |
+| Command           | Description              |
+|-------------------|--------------------------|
+| `npm run dev`     | Start Vite dev server    |
+| `npm run build`   | Build for production     |
 | `npm run preview` | Preview production build |
-| `npm run lint` | Lint & auto-fix code |
-| `npm run format` | Format source with Prettier |
+| `npm run lint`    | Lint & auto-fix code     |
+| `npm run format`  | Format source with Prettier |
 
 ---
 
-## ?? Key Dependencies
+## Key Dependencies
 
 ### Backend
 
-- [Django](https://www.djangoproject.com/) — Web framework
-- [Django REST Framework](https://www.django-rest-framework.org/) — API toolkit
-- [SimpleJWT](https://django-rest-framework-simplejwt.readthedocs.io/) — JWT authentication
-- [django-cors-headers](https://github.com/adamchainz/django-cors-headers) — CORS support
+- [Django](https://www.djangoproject.com/) - Web framework
+- [Django REST Framework](https://www.django-rest-framework.org/) - API toolkit
+- [SimpleJWT](https://django-rest-framework-simplejwt.readthedocs.io/) - JWT authentication
+- [django-cors-headers](https://github.com/adamchainz/django-cors-headers) - CORS support
 
 ### Frontend
 
-- [Vue 3](https://vuejs.org/) — UI framework
-- [Vue Router](https://router.vuejs.org/) — Client-side routing
-- [Pinia](https://pinia.vuejs.org/) — State management
-- [Axios](https://axios-http.com/) — HTTP client
-- [Leaflet](https://leafletjs.com/) + [@vue-leaflet/vue-leaflet](https://github.com/vue-leaflet/vue-leaflet) — Interactive maps
-- [Vite](https://vitejs.dev/) — Build tool
+- [Vue 3](https://vuejs.org/) - UI framework
+- [Vue Router](https://router.vuejs.org/) - Client-side routing
+- [Pinia](https://pinia.vuejs.org/) - State management
+- [Axios](https://axios-http.com/) - HTTP client
+- [Leaflet](https://leafletjs.com/) + [@vue-leaflet/vue-leaflet](https://github.com/vue-leaflet/vue-leaflet) - Interactive maps
+- [Vite](https://vitejs.dev/) - Build tool
 
 ---
 
-## ?? What is Excluded from Version Control
+## What is Excluded from Version Control
 
 The following are listed in `.gitignore` and should **not** be committed:
 
@@ -236,4 +231,3 @@ backend/.env           # Secret environment variables
 frontend/node_modules/ # Node dependencies
 frontend/dist/         # Production build output
 ```
-
