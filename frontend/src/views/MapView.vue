@@ -130,8 +130,8 @@ let watchId = null
 // Location smoothing — keeps last 5 readings and averages them
 const positionBuffer = []
 const BUFFER_SIZE = 5
-const MAX_ACCURACY = 50 // ignore readings worse than 50m
-const MAX_JUMP_METRES = 80 // ignore readings that jump more than 80m suddenly
+const MAX_ACCURACY = 150 // ignore readings worse than 150m
+const MAX_JUMP_METRES = 180 // ignore readings that jump more than 180m suddenly
 
 const panelCollapsed = ref(false)
 const selectedOrigin = ref('')
@@ -347,30 +347,46 @@ function smoothPosition(lat, lng, accuracy) {
 }
 
 function updateUserPosition(lat, lng, accuracy) {
-  const smoothed = smoothPosition(lat, lng, accuracy)
-  if (!smoothed) return // reading rejected
+  if (accuracy > MAX_ACCURACY) return
 
-  userLat.value = smoothed.lat
-  userLng.value = smoothed.lng
+  positionBuffer.push({ lat, lng, accuracy })
+  if (positionBuffer.length > BUFFER_SIZE) positionBuffer.shift()
+
+  let totalWeight = 0
+  let avgLat = 0
+  let avgLng = 0
+  positionBuffer.forEach(p => {
+    const weight = 1 / p.accuracy
+    avgLat += p.lat * weight
+    avgLng += p.lng * weight
+    totalWeight += weight
+  })
+
+  const smoothedLat = avgLat / totalWeight
+  const smoothedLng = avgLng / totalWeight
+  const smoothedAccuracy = positionBuffer.reduce((s, p) => s + p.accuracy, 0) / positionBuffer.length
+
+  userLat.value = smoothedLat
+  userLng.value = smoothedLng
 
   if (userMarker) map.removeLayer(userMarker)
   if (userAccuracyCircle) map.removeLayer(userAccuracyCircle)
 
-  userAccuracyCircle = L.circle([smoothed.lat, smoothed.lng], {
-    radius: smoothed.accuracy,
+  userAccuracyCircle = L.circle([smoothedLat, smoothedLng], {
+    radius: smoothedAccuracy,
     color: '#1a73e8',
     fillColor: '#1a73e8',
     fillOpacity: 0.08,
     weight: 1,
   }).addTo(map)
 
-  userMarker = L.marker([smoothed.lat, smoothed.lng], { icon: createUserIcon() })
-    .bindTooltip(`You (±${Math.round(smoothed.accuracy)}m)`, { direction: 'top' })
+  userMarker = L.marker([smoothedLat, smoothedLng], { icon: createUserIcon() })
+    .bindTooltip(`You (±${Math.round(smoothedAccuracy)}m)`, { direction: 'top' })
     .addTo(map)
 
   if (navigating.value) {
-    map.panTo([smoothed.lat, smoothed.lng])
-    updateCurrentStep(smoothed.lat, smoothed.lng)
+    map.panTo([smoothedLat, smoothedLng])
+    updateCurrentStep(smoothedLat, smoothedLng)
   }
 }
 
@@ -381,18 +397,44 @@ function startWatchingLocation() {
     return
   }
 
+  // Get an immediate first fix
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude, longitude, accuracy } = pos.coords
+      locationMessage.value = `Location active (±${Math.round(accuracy)}m)`
+      locationStatusClass.value = accuracy < 30 ? 'status-success' : 'status-detecting'
+      updateUserPosition(latitude, longitude, accuracy)
+    },
+    () => {
+      // High accuracy failed, try network-based fallback
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude, accuracy } = pos.coords
+          locationMessage.value = `Location active (±${Math.round(accuracy)}m)`
+          locationStatusClass.value = 'status-detecting'
+          updateUserPosition(latitude, longitude, accuracy)
+        },
+        () => {
+          locationMessage.value = 'Location unavailable — select manually'
+          locationStatusClass.value = 'status-error'
+        },
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+      )
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  )
+
+  // Then watch continuously
   watchId = navigator.geolocation.watchPosition(
     (pos) => {
       const { latitude, longitude, accuracy } = pos.coords
-
       if (accuracy > MAX_ACCURACY) {
         locationMessage.value = `Weak signal (±${Math.round(accuracy)}m) — improving...`
         locationStatusClass.value = 'status-detecting'
       } else {
         locationMessage.value = `Location active (±${Math.round(accuracy)}m)`
-        locationStatusClass.value = accuracy < 20 ? 'status-success' : 'status-detecting'
+        locationStatusClass.value = accuracy < 30 ? 'status-success' : 'status-detecting'
       }
-
       updateUserPosition(latitude, longitude, accuracy)
     },
     () => {
@@ -401,8 +443,8 @@ function startWatchingLocation() {
     },
     {
       enableHighAccuracy: true,
-      maximumAge: 0,      // always get fresh reading
-      timeout: 15000,
+      maximumAge: 5000,
+      timeout: 20000,
     }
   )
 }
