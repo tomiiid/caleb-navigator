@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: 'https://localhost:8000/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -26,7 +26,7 @@ api.interceptors.response.use(
       const refresh = localStorage.getItem('refresh_token')
       if (refresh) {
         try {
-          const res = await axios.post('http://localhost:8000/api/token/refresh/', {
+          const res = await axios.post('https://localhost:8000/api/token/refresh/', {
             refresh,
           })
           localStorage.setItem('access_token', res.data.access)
